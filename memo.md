@@ -83,3 +83,115 @@ Server Component, `onClick`　すら使えないのか。テンプレートエ�
 
 `components` ディレクトリとかではなくて `page.tsx` と同階層に置いてしまう。
 
+## ビルド
+
+1回ビルドしてみる。
+
+```
+Route (app)                                Size     First Load JS
+┌ ○ /                                      0 B                0 B
+└ λ /articles/[slug]                       139 B          66.6 kB
++ First Load JS shared by all              66.4 kB
+  ├ chunks/17-35779e5c4405374c.js          64.5 kB
+└ λ /api/articles/[slug]/comments          0 B            81.1 kB
++ First Load JS shared by all              81.1 kB
+  ├ chunks/main-07078917cb8e3d57.js        79.2 kB
+  ├ chunks/pages/_app-5841ab2cb3aa228d.js  192 B
+  └ chunks/webpack-c58b595510065273.js     1.75 kB
+
+λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
+○  (Static)  automatically rendered as static HTML (uses no initial props)
+```
+
+## fetch
+
+> app/pages.tsx 内で http://localhost:3000/api/articles から記事の一覧を取得します。
+
+`page.tsx` っぽい。
+
+`Home` を async 関数（コンポーネント）として再定義する。
+
+> デフォルトでは `fetch` を使用すると自動的にデータを取得した後にキャッシュされます。これは `fetch` のオプションはデフォルトで `{ cache: "force-cache" }` が設定されていることを意味します。`force-cache` オプションは `getStaticProp` と近い働きです。
+
+ほぼ永続？　再検証タイミングは？
+
+TODO: Next.js の `fetch` のドキュメント見る
+
+`fetch` は型的には Node 標準のものと同じ。
+
+## app/loading.tsx 追加
+
+> この挙動は Suspense における `fallback` と同じです。
+
+`page.tsx` の `resolve` が済むまで、 `layout.tsx` の `children` の部分丸ごとこれになる。
+
+## app/error.tsx 追加
+
+> また `error.tsx` は必ず Client Component として扱われます。
+
+わざと `"use client";` を欠くと以下のエラー。ブラウザに何も出ない。
+
+```
+Error: Functions cannot be passed directly to Client Components because they're not serializable.
+  <... parallelRouterKey=... segmentPath=... error={function} errorStyles=... loading=... loadingStyles=... hasLoading=... template=... templateStyles=... notFound=... notFoundStyles=... childProp=... rootLayoutIncluded=...>
+                                                   ^^^^^^^^^^
+    at resolveModelToJSON (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1766:39)
+    at Object.toJSON (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1132:40)
+    at stringify (<anonymous>)
+    at processModelChunk (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:172:36)
+    at retryTask (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1879:50)
+    at performWork (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1917:33)
+    at eval (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1308:40)    
+    at scheduleWork (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:52:25)
+    at pingTask (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1307:29)
+    at ping (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1320:40)    
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Error: Functions cannot be passed directly to Client Components because they're not serializable.
+  <... parallelRouterKey=... segmentPath=... error={function} errorStyles=... loading=... loadingStyles=... hasLoading=... template=... templateStyles=... notFound=... notFoundStyles=... childProp=... rootLayoutIncluded=...>
+                                                   ^^^^^^^^^^
+    at resolveModelToJSON (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1766:39)
+    at Object.toJSON (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1132:40)
+    at stringify (<anonymous>)
+    at processModelChunk (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:172:36)
+    at retryTask (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1879:50)
+    at performWork (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1917:33)
+    at eval (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1308:40)    
+    at scheduleWork (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:52:25)
+    at pingTask (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1307:29)
+    at ping (webpack-internal:///(sc_server)/./node_modules/next/dist/compiled/react-server-dom-webpack/server.browser.js:1320:40)    
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  digest: '4084611050'
+}
+```
+
+## ArticleList コンポーネント作成
+
+`app/components/ArticleCard.tsx` とあるがおそらく `app/ArticleCard.tsx`
+
+`app/components/ArticleList.tsx` も `app/ArticleList.tsx`
+
+うーん
+
+```
+Unhandled Runtime Error
+Error: Hydration failed because the initial UI does not match what was rendered on the server.
+
+See more info here: https://nextjs.org/docs/messages/react-hydration-error
+```
+
+↑が2回と、↓が1回。
+
+```
+Error: There was an error while hydrating this Suspense boundary. Switched to client rendering.
+```
+
+これが原因だろうか。
+
+> Common causes with css-in-js libraries:
+>
+> When using Styled Components / Emotion
+
+コンソールにこういうのも出ている：
+```
+Warning: Expected server HTML to contain a matching <h1> in <div>.
+```
