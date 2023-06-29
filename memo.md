@@ -195,3 +195,37 @@ Error: There was an error while hydrating this Suspense boundary. Switched to cl
 ```
 Warning: Expected server HTML to contain a matching <h1> in <div>.
 ```
+
+## コメントの取得
+
+> `revalidate` は `fetch` のオプションとして渡すだけでなく、ルート単位の設定もできます。ルート単位で設定するには `page` または `layout` ファイルで以下のように記述します。
+>
+> ```ts
+> export const revalidate = 60
+> ```
+
+ISRっぽい。
+
+`app/pages/articles/[slug].tsx` とあるが、 `app/articles/[slug]/page.tsx`。
+`app/pages/articles/not-found.tsx` とあるが、`app/articles/[slug]/not-found.tsx`
+
+`fallback` とは別に404画面を出せる。
+```ts
+  if (res.status === 404) {
+    // notFound 関数を呼び出すと not-fount.tsx を表示する
+    notFound();
+  }
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch article");
+  }
+```
+
+この時点で `/articles/hoge.tsx` を開くと、`Article` の名前（型名とページコンポーネント）が重複してエラーになった。
+
+`app/pages/articles/[slug].tsx` とあるが、 `app/articles/[slug]/page.tsx`。
+
+```diff
+-  return data.comments as Comment[];
++  return data as Comment[];
+```
