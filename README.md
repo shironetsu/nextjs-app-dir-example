@@ -1,1 +1,1 @@
-see https://zenn.dev/azukiazusa/articles/next-js-app-dir-tutorial
+[Next.js 13 app directory で記事投稿サイトを作ってみよう](https://zenn.dev/azukiazusa/articles/next-js-app-dir-tutorial) を読みながら写したものです。
