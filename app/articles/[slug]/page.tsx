@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Article, Comment } from "../../types";
+import Comments from './Comments'
 
 const getArticle = async (slug: string) => {
   const res = await fetch(`http://localhost:3000/api/articles/${slug}`, {
@@ -59,19 +60,3 @@ export default async function ArticleDetail({
   );
 }
 
-async function Comments({
-  commentsPromise,
-}: {
-  commentsPromise: Promise<Comment[]>;
-}) {
-  const comments = await commentsPromise;
-  // ブラウザ側で再評価されない?
-  console.debug('comments', comments)
-  return (
-    <ul>
-      {comments.map((comment) => (
-        <li key={comment.id}>{comment.body}</li>
-      ))}
-    </ul>
-  );
-}
