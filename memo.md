@@ -314,3 +314,17 @@ export default async function Comments({
 エラー抑制していたせいで未定義プロパティを使っていることに気付かず……。
 というか未定義プロパティがあること自体はJS的には実行時エラーにならないのか。
 ビルドも通ってしまうので気付けなかった。
+
+## metadata
+
+> ルーティングごとに `<head>` タグを設定するには、`page.tsx` または `layout.tsx` ファイル内で `metadata` オブジェクトまたは `generateMetadata` 関数を名前付きエクスポートします。
+
+`generateMetadata` の型(`GenerateMetadata`)が欲しいが無い？`Metadata` 型はある。
+
+> `ArticleDetail` コンポーネントと同じリクエストを送信しているので一見非効率なように思えますが、Next.js により `fetch` を利用したリクエストは自動で重複排除されるのでパフォーマンスには影響しません。
+
+すごすぎる。
+
+> "metadata" is not a valid Next.js entry export value.ts(71002)
+
+https://github.com/vercel/next.js/issues/46431
