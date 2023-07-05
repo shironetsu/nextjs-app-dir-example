@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { Article, Comment } from "../../types";
 
 const getArticle = async (slug: string) => {
@@ -36,28 +37,41 @@ const getComments = async (slug: string) => {
 };
 
 export default async function ArticleDetail({
-    params,
-  }: {
-    params: { slug: string };
-  }) {
-    const articlePromise = getArticle(params.slug);
-    const commentsPromise = getComments(params.slug);
-  
-    const [article, comments] = await Promise.all([
-      articlePromise,
-      commentsPromise,
-    ]);
-  
-    return (
-      <div>
-        <h1>{article.title}</h1>
-        <p>{article.content}</p>
-        <h2>Comments</h2>
-        <ul>
-          {comments.map((comment) => (
-            <li key={comment.id}>{comment.body}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const articlePromise = getArticle(params.slug);
+  const commentsPromise = getComments(params.slug);
+
+  const article = await articlePromise;
+
+  return (
+    <div>
+      <h1>{article.title}</h1>
+      <p>{article.content}</p>
+      <h2>Comments</h2>
+      <Suspense fallback={<div>Loading comments...</div>}>
+        {/* @ts-expect-error 現状は jsx が Promise を返すと TypeScript が型エラーを報告するが、将来的には解決される */}
+        <Comments commentPromise={commentsPromise} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function Comments({
+  commentsPromise,
+}: {
+  commentsPromise: Promise<Comment[]>;
+}) {
+  const comments = await commentsPromise;
+  // ブラウザ側で再評価されない?
+  console.debug('comments', comments)
+  return (
+    <ul>
+      {comments.map((comment) => (
+        <li key={comment.id}>{comment.body}</li>
+      ))}
+    </ul>
+  );
+}

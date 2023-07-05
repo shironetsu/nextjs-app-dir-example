@@ -18,6 +18,7 @@ export default async function handler(
     const comment = JSON.parse(comments).comments.filter(
       (c: any) => c.articleId === articleId
     );
+    console.debug(comment)
     res.status(200).json(comment);
   }
 }

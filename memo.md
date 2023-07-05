@@ -229,3 +229,18 @@ ISRっぽい。
 -  return data.comments as Comment[];
 +  return data as Comment[];
 ```
+
+Resolveされる前に `Comments` がレンダーされてしまう。
+
+```
+TypeError: Cannot read properties of undefined (reading 'map')
+    at Comments (webpack-internal:///(sc_server)/./app/articles/[slug]/page.tsx:93:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+TypeError: Cannot read properties of undefined (reading 'map')
+    at Comments (webpack-internal:///(sc_server)/./app/articles/[slug]/page.tsx:93:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  digest: '1623454996'
+}
+```
+
+解決しないので保留。
