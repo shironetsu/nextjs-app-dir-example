@@ -328,3 +328,24 @@ export default async function Comments({
 > "metadata" is not a valid Next.js entry export value.ts(71002)
 
 https://github.com/vercel/next.js/issues/46431
+
+## 記事の作成
+- `app/articles/new/index.tsx` とあるが、`app/articles/new/page.tsx`
+- 最初の時点では `isPending` がない。
+
+> App Router 内で `useRouter` を使うためには `next/router` ではなく `next/navigation` をインポートする必要があります。
+
+名前だけ同じで別物なのか。
+
+> Soft Navigation
+
+https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#conditions-for-soft-navigation
+
+## 完成
+
+面白かった。勉強になった。
+
+コンポーネントをページの近くに置けるところとか、fetchをコンポーネント内に直感的に書けるところとか、
+これまでのNext.jsで感じてきた痒いところに手が届く。
+
+ローディングという比較的実装者任せで、安直にやるとステート管理でごちゃごちゃしがちだった部分にも厚いサポートが入ったのが嬉しい。
