@@ -1,11 +1,11 @@
 import type { Comment } from "../../types";
  
 export default async function Comments({
-    commentsPromise,
+    commentPromise,
   }: {
-    commentsPromise: Promise<Comment[]>;
+    commentPromise: Promise<Comment[]>
   }) {
-    const comments = await commentsPromise;
+    const comments = await commentPromise;
     return (
       <ul>
         {comments.map((comment) => (

@@ -244,3 +244,73 @@ TypeError: Cannot read properties of undefined (reading 'map')
 ```
 
 解決しないので保留。
+
+落ちる……
+
+```
+TypeError: fetch failed
+    at Object.fetch (node:internal/deps/undici/undici:11404:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async getArticle (C:\path\to\nextjs-app-dir-example\.next\server\app\articles\[slug]\page.js:427:17)
+    at async ArticleDetail (C:\path\to\nextjs-app-dir-example\.next\server\app\articles\[slug]\page.js:455:21) {
+  cause: Error: connect ECONNREFUSED ::1:3000
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1494:16)
+      at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+    errno: -4078,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '::1',
+    port: 3000
+  }
+}
+[Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.] {
+  digest: '2973016215'
+}
+node:internal/deps/undici/undici:11404
+    Error.captureStackTrace(err, this);
+          ^
+
+TypeError: fetch failed
+    at Object.fetch (node:internal/deps/undici/undici:11404:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async getComments (C:\path\to\nextjs-app-dir-example\.next\server\app\articles\[slug]\page.js:443:17) {
+  cause: Error: connect ECONNREFUSED ::1:3000
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1494:16)
+      at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17) {
+    errno: -4078,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '::1',
+    port: 3000
+  }
+}
+
+Node.js v18.14.1
+error Command failed with exit code 1.
+```
+
+`package.json` を `complete` ブランチに揃えてみる→だめ
+https://github.com/azukiazusa1/nextjs-app-dir-example/blob/complete/package.json
+
+`complete`ブランチを動かしてみる→OK
+
+ならNodeやパッケージのバージョンではなくてコードの問題だ。
+
+---
+
+あほだった…………。タイポだった。＞`commentPromise`と`commetsPromise`が混在。
+```tsx
+{/* @ts-expect-error 現状は jsx が Promise を返すと TypeScript が型エラーを報告するが、将来的には解決される */}
+<Comments commentPromise={commentsPromise} />
+```
+
+```tsx
+export default async function Comments({
+    commentsPromise,
+  }: {
+    commentsPromise: Promise<Comment[]>;
+  }) {
+```
+エラー抑制していたせいで未定義プロパティを使っていることに気付かず……。
+というか未定義プロパティがあること自体はJS的には実行時エラーにならないのか。
+ビルドも通ってしまうので気付けなかった。

@@ -18,7 +18,7 @@ const getArticle = async (slug: string) => {
   }
 
   const data = await res.json();
-  return data as Article;
+  return Article.parse(data)
 };
 
 const getComments = async (slug: string) => {
@@ -34,7 +34,7 @@ const getComments = async (slug: string) => {
   }
 
   const data = await res.json();
-  return data as Comment[];
+  return Comment.array().parse(data)
 };
 
 export default async function ArticleDetail({
@@ -43,7 +43,7 @@ export default async function ArticleDetail({
   params: { slug: string };
 }) {
   const articlePromise = getArticle(params.slug);
-  const commentsPromise = getComments(params.slug);
+  const commentPromise = getComments(params.slug);
 
   const article = await articlePromise;
 
@@ -53,8 +53,7 @@ export default async function ArticleDetail({
       <p>{article.content}</p>
       <h2>Comments</h2>
       <Suspense fallback={<div>Loading comments...</div>}>
-        {/* @ts-expect-error 現状は jsx が Promise を返すと TypeScript が型エラーを報告するが、将来的には解決される */}
-        <Comments commentPromise={commentsPromise} />
+        <Comments commentPromise={commentPromise} />
       </Suspense>
     </div>
   );
